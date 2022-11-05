@@ -1,0 +1,200 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Quote
+{% endblock %}
+
+
+{% block extra_style %}
+    div[class*="chart"]{
+        background-color: #161414;
+    }
+
+    .card{
+        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    }
+{% endblock %}
+
+
+{% block main %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+<div class="card d-flex flex-row m-3">
+  <div class="card-body">
+    <canvas id="myChart" height="40%" width="100%"></canvas>
+  </div>
+  <div class="d-flex flex-column">
+    <h2 class="text-center m-3"> {{ Symbol }} </h2>
+    <div class="card m-2">
+      <div class="card-body ">
+        <div class="card-tittle ">     
+         
+        </div>
+        <form action="">
+          <div class="form  text-center">
+            <input class="form-control" type="number" name="Qnt" id="Qnt" placeholder="Quantidade de ações">
+            <button type="submit"class="btn btn-primary mb-2 m-2">Comprar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <div class="card m-2">
+      <div class="card-body">
+        <div class="card-tittle">    
+        </div>
+        <form action="">
+          <div class="form  text-center">
+            <input class="form-control" type="number" name="Qnt" id="Qnt" placeholder="Quantidade de ações">
+            <button type="submit"class="btn btn-danger mb-2 m-2">Vender</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <button type="button" class="btn btn-primary m-2 md" data-bs-toggle="modal" data-bs-target="#changeStocks">
+      Mudar Ação
+    </button>
+    
+    <div class="modal fade" id="changeStocks" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="changeStocksLabel">Insira sua ação e escolha o tempo do gráfico</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <form action="{{ url_for("quote")}}" method="post" class="row g-3">
+              
+              <input type="text" id="symbolID"name="symbol" value="{{ Symbol }}" class="form-control" placeholder="Insira uma ação...">
+              
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="time" id="Ano" autocomplete="off" value="Ano" checked>
+                <label class="btn btn-outline-primary" for="Ano">Ano</label>
+              
+                <input type="radio" class="btn-check" name="time" id="Mes" autocomplete="off" value="Mes">
+                <label class="btn btn-outline-primary" for="Mes">Mês</label>                
+              </div>
+            
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+            <button type="submit" class="btn btn-primary">Cotar</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</body>
+
+</html>
+
+
+
+<script >    
+var dates = '{{ dates }}';
+console.log(dates)
+dates = dates.replaceAll('&#39;','')
+dates = dates.replaceAll('[','')
+dates = dates.replaceAll(']','')
+dates = dates.split(', ')
+
+dates.forEach(element => {
+  
+  element[0]
+});
+
+console.log(dates)
+
+function moveElementsToEndOfArray(arr, x) {
+  
+  x = x % (arr.length);
+
+  for (let i = 0; i < x; i++) {
+      arr.push(arr[i]);
+  }
+
+  arr.splice(0, x);
+
+  return arr;
+}
+
+function getDaysInMonth(year, month) {
+  return new Date(year, month, 0).getDate();
+}
+
+var time = '{{ timeGraph }}'
+console.log(time)
+
+var symbol = document.getElementById("symbolID").value;
+
+var closevalues = JSON.parse('{{ values }}');
+
+var ctx = document.getElementById('myChart').getContext('2d');
+const gradientbg = ctx.createLinearGradient(0,0,0,300);
+var bordercolors = "";
+
+
+if(closevalues[0] > closevalues[12]){
+  bordercolors = 'rgb(224,61,61,20)';
+  gradientbg.addColorStop(0.2, 'rgb(224,61,61,50)');
+  gradientbg.addColorStop(1,'rgb(255, 255, 255, 0)'); 
+}else{
+  bordercolors = 'rgb(145,240,134,50)';
+  gradientbg.addColorStop(0.2, 'rgb(145,240,134,50)');
+  gradientbg.addColorStop(1,'rgb(255, 255, 255, 0)'); 
+}
+
+
+
+const data = {
+  labels: dates,
+  datasets: [{
+    fill: true,
+    backgroundColor: gradientbg,
+    borderColor: bordercolors,
+    data: closevalues,
+    tension: 0.1
+  }]
+};
+
+const config = {
+    type: 'line',
+    data: data,
+    options: {
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+
+        elements: {
+            point:{
+                radius: 3
+            }
+        },
+
+        scales: {
+            x: {
+                grid: {
+                display: false,
+                drawBorder: true,
+                drawOnChartArea: false,
+                drawTicks: true,
+                
+                }
+            },
+            y:{},    
+        }
+    }
+};
+
+const myChart = new Chart(
+  document.getElementById('myChart'),
+  config
+);    
+</script>
+{% endblock %}
