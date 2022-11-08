@@ -63,7 +63,7 @@ def index():
     return render_template("index.html", shares=shares, cash_total=cash_total, grand_total=grand_total)
 
 
-@app.route("/buy", methods=["GET", "POST"])
+@app.route("/buy", methods=["POST"])
 @login_required
 def buy():
     """Buy shares of stock"""
@@ -108,9 +108,6 @@ def buy():
         db.execute("UPDATE users SET cash = cash - ? WHERE id = ?", share["price"] * qnt, user_id)
 
         return redirect("/")
-
-    else:
-        return render_template("buy.html")
 
 
 @app.route("/history")
@@ -170,11 +167,11 @@ def logout():
     return redirect("/")
 
 
-@app.route("/quote", methods=["GET", "POST"])
+@app.route("/stock", methods=["GET", "POST"])
 @login_required
-def quote():
+def stock():
     if request.method == "POST":
-        symbol = request.form.get("symbol")
+        symbol = request.form.get("symbol").upper()
         time = request.form['time']
     if request.method == "GET":
         time = "Mes"
@@ -186,7 +183,6 @@ def quote():
         hist = share.history(period='1y', interval='1mo')
         closeValues = hist["Close"].tolist()
         datesz = hist.index.strftime("%d/%m/%Y").tolist()            
-        print(type(datesz))
         i = 0
         for price in closeValues:
             if math.isnan(price):
@@ -204,7 +200,7 @@ def quote():
                 datesz.pop(i)
             i+=1 
         
-    return render_template("quote.html", values = closeValues,dates = datesz,timeGraph = time, Symbol = symbol)
+    return render_template("stock.html", values = closeValues,dates = datesz,timeGraph = time, Symbol = symbol)
 
 
 
@@ -265,7 +261,7 @@ def change_password():
         return render_template("change_password.html")
 
 
-@app.route("/sell", methods=["GET", "POST"])
+@app.route("/sell", methods=["POST"])
 @login_required
 def sell():
     """Sell shares of stock"""
@@ -306,13 +302,6 @@ def sell():
         db.execute("INSERT INTO history (user_id, symbol, unit_price, qnt) VALUES (?, ?, ?, ?)", user_id, symbol, price, -qnt_to_sell)
 
         return redirect("/")
-
-    else:
-
-        symbols = db.execute("SELECT symbol FROM shares WHERE user_id = ?", session.get("user_id"))
-        symbols = [d['symbol'] for d in symbols]
-
-        return render_template("sell.html", symbols=symbols)
 
 
 def errorhandler(e):

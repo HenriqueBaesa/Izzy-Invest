@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Quote
+    Stock
 {% endblock %}
 
 
@@ -32,9 +32,10 @@
         <div class="card-tittle ">     
          
         </div>
-        <form action="">
+        <form action="/buy" method="post">
           <div class="form  text-center">
-            <input class="form-control" type="number" name="Qnt" id="Qnt" placeholder="Quantidade de ações">
+            <input class="form-control" type="number" name="shares" id="shares" placeholder="Quantidade de ações">
+            <input hidden name="symbol" id="symbol" value="{{ Symbol }}">
             <button type="submit"class="btn btn-primary mb-2 m-2">Comprar</button>
           </div>
         </form>
@@ -44,9 +45,10 @@
       <div class="card-body">
         <div class="card-tittle">    
         </div>
-        <form action="">
+        <form action="/sell" method="post">
           <div class="form  text-center">
-            <input class="form-control" type="number" name="Qnt" id="Qnt" placeholder="Quantidade de ações">
+            <input class="form-control" type="number" name="shares" id="shares" placeholder="Quantidade de ações">
+            <input hidden name="symbol" id="symbol" value="{{ Symbol }}">
             <button type="submit"class="btn btn-danger mb-2 m-2">Vender</button>
           </div>
         </form>
@@ -64,7 +66,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body">
-            <form action="{{ url_for("quote")}}" method="post" class="row g-3">
+            <form action="/stock" method="post" class="row g-3">
               
               <input type="text" id="symbolID"name="symbol" value="{{ Symbol }}" class="form-control" placeholder="Insira uma ação...">
               
