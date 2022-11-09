@@ -126,3 +126,7 @@ input[type="number"]:focus{
   input[type=number]{
     -moz-appearance: textfield;
 }
+
+.nav-link:hover{
+    color: #2e944b !important; 
+}
