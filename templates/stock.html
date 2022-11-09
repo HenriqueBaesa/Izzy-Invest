@@ -4,39 +4,25 @@
     Stock
 {% endblock %}
 
-
-{% block extra_style %}
-    div[class*="chart"]{
-        background-color: #161414;
-    }
-
-    .card{
-        box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
-    }
-{% endblock %}
-
-
 {% block main %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
-<div class="card d-flex flex-row m-3">
+<div class="card d-flex flex-row m-3" id="cardMain">
+  
   <div class="card-body">
+    <h2 class="text-center"> {{ Symbol }} </h2>
     <canvas id="myChart" height="40%" width="100%"></canvas>
   </div>
-  <div class="d-flex flex-column">
-    <h2 class="text-center m-3"> {{ Symbol }} </h2>
+  <div class="d-flex flex-column justify-content-around">    
     <div class="card m-2">
-      <div class="card-body ">
-        <div class="card-tittle ">     
-         
-        </div>
+      <div class="card-body">
         <form action="/buy" method="post">
           <div class="form  text-center">
             <input class="form-control" type="number" name="shares" id="shares" placeholder="Quantidade de ações">
             <input hidden name="symbol" id="symbol" value="{{ Symbol }}">
-            <button type="submit"class="btn btn-primary mb-2 m-2">Comprar</button>
+            <button type="submit"class="btn btn-success mb-2 m-2">Comprar</button>
           </div>
         </form>
       </div>
@@ -63,20 +49,28 @@
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title" id="changeStocksLabel">Insira sua ação e escolha o tempo do gráfico</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-          <div class="modal-body">
-            <form action="/stock" method="post" class="row g-3">
+          <div class="modal-body justify-content-center">
+            <form action="/stock" method="post">
               
               <input type="text" id="symbolID"name="symbol" value="{{ Symbol }}" class="form-control" placeholder="Insira uma ação...">
               
-              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
-                <input type="radio" class="btn-check" name="time" id="Ano" autocomplete="off" value="Ano" checked>
-                <label class="btn btn-outline-primary" for="Ano">Ano</label>
-              
-                <input type="radio" class="btn-check" name="time" id="Mes" autocomplete="off" value="Mes">
-                <label class="btn btn-outline-primary" for="Mes">Mês</label>                
+              <div class="d-flex flex-row justify-content-center">
+
+                <div class="form-check mr-3">
+  
+                  <input type="radio" class="form-check-input" name="time" id="Ano" autocomplete="off" value="Ano" checked>
+                  <label class="form-check-label" for="Ano">Ano</label>
+                </div>
+  
+                <div class="form-check ml-3">
+  
+                  <input type="radio" class="form-check-input" name="time" id="Mes" autocomplete="off" value="Mes">
+                  <label class="form-check-label" for="Mes">Mês</label>                
+                </div>
               </div>
+            
+
             
           </div>
           <div class="modal-footer">
@@ -96,107 +90,252 @@
 
 
 
+
 <script >    
-var dates = '{{ dates }}';
-console.log(dates)
-dates = dates.replaceAll('&#39;','')
-dates = dates.replaceAll('[','')
-dates = dates.replaceAll(']','')
-dates = dates.split(', ')
 
-dates.forEach(element => {
+  var Xticks = true;
   
-  element[0]
-});
-
-console.log(dates)
-
-function moveElementsToEndOfArray(arr, x) {
+  $(document).ready(function() {
+    var $window = $(window);
   
-  x = x % (arr.length);
-
-  for (let i = 0; i < x; i++) {
-      arr.push(arr[i]);
+    // Function to handle changes to style classes based on window width
+    function checkWidth() {
+      
+      var cardMain = $("#cardMain")
+      if ($window.width() < 980) {
+        // $('#mainContent').removeClass('span7').addClass('span10');
+        var content = $("#cardMain").contents()
+        var backup = $("#cardMain").replaceWith(content);
+        updateConfigByMutating(false)
+      };
+  
+      if ($window.width() >= 980) {
+        content.replaceWith = cardMain;
+  
+        updateConfigByMutating(true)
+      }
+    }
+  
+    // Execute on load
+    checkWidth();
+  
+    // Bind event listener
+    $(window).resize(checkWidth);
+  });
+  
+  function updateConfigByMutating(bool) {
+    myChart.options.scales.x.ticks.display = bool;
+    myChart.update();
   }
+  
+  var dates = '{{ dates }}';
+  console.log(dates)
+  dates = dates.replaceAll('&#39;','')
+  dates = dates.replaceAll('[','')
+  dates = dates.replaceAll(']','')
+  dates = dates.split(', ')
+  
+  dates.forEach(element => {
+    
+    element[0]
+  });
+  
+  console.log(dates)
+  
+  function getDaysInMonth(year, month) {
+    return new Date(year, month, 0).getDate();
+  }
+  
+  var time = '{{ timeGraph }}'
+  console.log(time)
+  
+  var symbol = document.getElementById("symbolID").value;
+  
+  var closevalues = JSON.parse('{{ values }}');
+  
+  var ctx = document.getElementById('myChart').getContext('2d');
+  // const gradientbg = ctx.createLinearGradient(0,0,0,300);
+  var colorbg = "";
+  var bordercolors = "";
+  
+  
+  if(closevalues[0] > closevalues[closevalues.length-1]){
+    bordercolors = 'rgb(224,61,61,50)';
+    // gradientbg.addColorStop(0.5, 'rgb(224,61,61,50)');
+    // gradientbg.addColorStop(1,'#383c44'); 
+    colorbg = 'rgba(224,61,61,0.1)';
+  }else{
+    bordercolors = 'rgb(145,240,134,50)';
+    // gradientbg.addColorStop(0.1, 'rgb(145,240,134,50)');
+    // gradientbg.addColorStop(1,'#383c44'); 
+    colorbg = 'rgba(145,240,134,0.1)';
+  }
+  
+  
+  
+  // const data = {
+  //   labels: dates,
+  //   datasets: [{
+  //     labels: "aaa",
+  //     fill: true,
+  //     backgroundColor: gradientbg,
+  //     borderColor: bordercolors,
+  //     data: closevalues,
+  //     tension: 0.1
+  //   }]
+  // };
+  
+  // const config = {
+  //     type: 'line',
+  //     data: data,
+  //     options: {
+  //         plugins: {
+  //             legend: {
+  //                 display: false
+  //             }
+  //         },
+  
+  //         elements: {
+  //             point:{
+  //                 radius: 3
+  //             }
+  //         },
+  
+  //         scales: {
+  //             x: {
+  //               ticks: {
+  //                 display: Xticks,
+  //               },
+  //               grid: {
+  //               display: false,
+  //               drawBorder: true,
+  //               drawOnChartArea: false,
+  //               drawTicks: true,
+                  
+  //               }
+  //             },
+  //             y:{
+                
+  //             },    
+  //         }
+  //     }
+  // };
+  
+  // const myChart = new Chart(
+  //   document.getElementById('myChart'),
+  //   config
+  // );    
 
-  arr.splice(0, x);
+  $(document).ready( function() {
+  // Javascript method's body can be found in assets/js/demos.js
+  var gradientChartOptionsConfigurationWithTooltipPurple = {
+    legend: {
+      display: false
+    },
+    plugins: {
+        legend: {
+            display: false
+        }
+    },
 
-  return arr;
-}
+    tooltips: {
+      backgroundColor: '#f5f5f5',
+      titleFontColor: '#333',
+      bodyFontColor: '#666',
+      bodySpacing: 4,
+      xPadding: 12,
+      mode: "nearest",
+      intersect: 0,
+      position: "nearest"
+    },
+    responsive: true,
+    scales: {
+      yAxes: [{
+        barPercentage: 1.6,
+        gridLines: {
+          drawBorder: false,
+          color: 'rgba(29,140,248,0.0)',
+          zeroLineColor: "transparent",
+        },
+        ticks: {
+          suggestedMin: 60,
+          suggestedMax: 125,
+          padding: 20,
+          fontColor: "#9a9a9a"
+        }
+      }],
 
-function getDaysInMonth(year, month) {
-  return new Date(year, month, 0).getDate();
-}
-
-var time = '{{ timeGraph }}'
-console.log(time)
-
-var symbol = document.getElementById("symbolID").value;
-
-var closevalues = JSON.parse('{{ values }}');
-
-var ctx = document.getElementById('myChart').getContext('2d');
-const gradientbg = ctx.createLinearGradient(0,0,0,300);
-var bordercolors = "";
-
-
-if(closevalues[0] > closevalues[12]){
-  bordercolors = 'rgb(224,61,61,20)';
-  gradientbg.addColorStop(0.2, 'rgb(224,61,61,50)');
-  gradientbg.addColorStop(1,'rgb(255, 255, 255, 0)'); 
-}else{
-  bordercolors = 'rgb(145,240,134,50)';
-  gradientbg.addColorStop(0.2, 'rgb(145,240,134,50)');
-  gradientbg.addColorStop(1,'rgb(255, 255, 255, 0)'); 
-}
+      xAxes: [{
+        barPercentage: 1.6,
+        gridLines: {
+          drawBorder: false,
+          color: 'rgba(225,78,202,0.1)',
+          zeroLineColor: "transparent",
+        },
+        ticks: {
+          padding: 20,
+          fontColor: "#F2F2F2"
+        }
+      }]
+    }
+  };
 
 
+  var gradientStroke = ctx.createLinearGradient(0, 230, 0, 50);
 
-const data = {
-  labels: dates,
-  datasets: [{
-    fill: true,
-    backgroundColor: gradientbg,
-    borderColor: bordercolors,
-    data: closevalues,
-    tension: 0.1
-  }]
-};
+  var data = {
+    labels: dates,
+    datasets: [{
+      label: "Data",
+      fill: true,
+      backgroundColor: colorbg,
+      borderColor: bordercolors,
+      borderWidth: 2,
+      borderDash: [],
+      borderDashOffset: 0.0,
+      pointBackgroundColor: bordercolors,
+      pointBorderColor: 'rgba(255,255,255,0)',
+      pointHoverBackgroundColor: bordercolors,
+      pointBorderWidth: 20,
+      pointHoverRadius: 4,
+      pointHoverBorderWidth: 15,
+      pointRadius: 4,
+      data: closevalues,
+    }]
+  };
 
-const config = {
+  var myChart = new Chart(ctx, {
     type: 'line',
     data: data,
-    options: {
-        plugins: {
-            legend: {
-                display: false
-            }
-        },
+    options: gradientChartOptionsConfigurationWithTooltipPurple
+  });
 
-        elements: {
-            point:{
-                radius: 3
-            }
-        },
 
-        scales: {
-            x: {
-                grid: {
-                display: false,
-                drawBorder: true,
-                drawOnChartArea: false,
-                drawTicks: true,
-                
-                }
-            },
-            y:{},    
-        }
-    }
-};
-
-const myChart = new Chart(
-  document.getElementById('myChart'),
-  config
-);    
+  var config = {
+    type: 'line',
+    data: {
+      labels: chart_labels,
+      datasets: [{
+        label: "My First dataset",
+        fill: true,
+        backgroundColor: gradientStroke,
+        borderColor: '#d346b1',
+        borderWidth: 2,
+        borderDash: [],
+        borderDashOffset: 0.0,
+        pointBackgroundColor: '#d346b1',
+        pointBorderColor: 'rgba(255,255,255,0)',
+        pointHoverBackgroundColor: '#d346b1',
+        pointBorderWidth: 20,
+        pointHoverRadius: 4,
+        pointHoverBorderWidth: 15,
+        pointRadius: 4,
+        data: chart_data,
+      }]
+    },
+    options: gradientChartOptionsConfigurationWithTooltipPurple
+  };
+  new Chart(ctx, config);
+});
 </script>
 {% endblock %}

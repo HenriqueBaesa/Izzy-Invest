@@ -1,6 +1,7 @@
 body
 {
     background-color: #454d55;
+    color: #9a9a9a;
 }
 
 
@@ -65,7 +66,22 @@ footer {
     height: 40px;
 }
 
+/* stock style */
 
+input[type="number"]{
+    background-color: #454d55;
+    border-color: #383c44;
+    color: #9a9a9a;
+}
 
+input[type="number"]:focus{
+    background-color: #454d55;
+    color: #cccbcb;
+}
+
+.card{
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+    background-color: #383c44;
+}
 
 
