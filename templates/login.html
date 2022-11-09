@@ -1,17 +1,35 @@
-{% extends "layout.html" %}
-
-{% block title %}
-    Log In
-{% endblock %}
-
-{% block main %}
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/static/styles.css">
+<title>Login</title>
+</head>
+<body>
+   <div class="main-login">
+    <div class="left-login">
+        <h1>Faça seu Registro<br>e venha fazer parte da Izzy Invest </h1>
+        <img src="/static/astronauta.svg" class="left-login-image" alt="gato astronauta animação">
+    </div>
     <form action="/login" method="post">
-        <div class="form-group">
-            <input autocomplete="off" autofocus class="form-control" name="username" placeholder="Username" type="text">
+        <div class="right-login">
+            <div class="card-login">
+                <h1>Login</h1>
+                <div class="textfield">
+                    <label for="username">Nome de usuário</label>
+                    <input type="username" name="username" id="username" placeholder="Nome">
+                </div>
+                <div class="textfield">
+                    <label for="senha">Senha</label>
+                    <input type="password" name="password" id="password" placeholder="Senha">
+                </div>
+                <button class="btn-login" value="sumbit">Fazer login</button>
+                <a href="/register">Registrar</a>
+            </div>
         </div>
-        <div class="form-group">
-            <input class="form-control" name="password" placeholder="Password" type="password">
-        </div>
-        <button class="btn btn-primary" type="submit">Log In</button>
     </form>
-{% endblock %}
+</div>
+</body>
+</html>
