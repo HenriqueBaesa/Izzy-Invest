@@ -1,3 +1,9 @@
+body
+{
+    background-color: #454d55;
+}
+
+
 nav .navbar-brand
 {
     /* size for brand */
@@ -58,3 +64,8 @@ footer {
     /* Height of the footer*/
     height: 40px;
 }
+
+
+
+
+
